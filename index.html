@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proxy Checker</title>
+  </head>
+  <body>
+    <div>
+      <h1>Proxy Checker</h1>
+      <p>Enter the IP to check if it's behind a proxy:</p>
+      <input type="text" id="ipInput" placeholder="e.g., 51.79.254.182" />
+      <button onclick="checkProxy()">Check Proxy</button>
+      <div id="result" style="margin-top: 20px; font-size: 1.2em"></div>
+    </div>
+
+    <script>
+      const CORS_HEADER_OPTIONS = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
+        "Access-Control-Max-Age": "86400",
+      };
+      async function checkProxy() {
+        const [ip, port] = document.getElementById("ipInput").value.split(":");
+        const resultDiv = document.getElementById("result");
+        const host = "speed.cloudflare.com";
+        // const port = "443";
+        const tls = true;
+
+        if (!ip) {
+          resultDiv.textContent = "Please enter an IP address.";
+          return;
+        }
+
+        resultDiv.textContent = "Checking...";
+
+        try {
+          const url = `https://p01--boiling-frame--kw6dd7bjv2nr.code.run/check?ip=${ip}&port=${port}&host=speed.cloudflare.com&tls=${tls}`;
+
+          const response = await fetch(url, { method: "GET" });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          // Extract proxy status from response
+          const isProxy = data.proxyip ? "Yes" : "No";
+
+          resultDiv.textContent = `Is Proxy: ${isProxy}`;
+        } catch (error) {
+          console.error("Error:", error);
+          resultDiv.textContent = "An error occurred while checking the proxy.";
+        }
+      }
+    </script>
+  </body>
+</html>
